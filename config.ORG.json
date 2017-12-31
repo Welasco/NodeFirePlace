@@ -1,0 +1,25 @@
+{
+  "httpport": 3000,
+  "dscalarm": {
+    "alarmpassword": "1234",
+    "wincom": "COM3",
+    "linuxcom": "/dev/ttyUSB0",
+    "baudRate": 9600,
+    "panelConfig": {
+      "type": "discover",
+      "zones": [
+        {"zone": "001", "type": "contact", "name": "Zone 1 - Fron/Back Door"},
+        {"zone": "002", "type": "contact", "name": "Zone 2 - Sof Dinner Wind"},
+        {"zone": "003", "type": "contact", "name": "Zone 3 - Kit Leave Room Wind"},
+        {"zone": "004", "type": "contact", "name": "Zone 4 - Master Room Wind"},
+        {"zone": "005", "type": "contact", "name": "Zone 5 - Back Yard Door"},
+        {"zone": "006", "type": "contact", "name": "Zone 6 - 2nd Floor Wind"}
+      ]
+    }
+  },
+  "notify": {
+    "address": "192.168.0.6",
+    "port": "39500"
+  }
+}
+  
