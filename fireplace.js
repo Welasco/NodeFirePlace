@@ -1,4 +1,4 @@
-
+#!/usr/bin/env node
 // Loading Dependencies
 var http = require("http");
 var https = require('https');
@@ -123,7 +123,7 @@ var notify = function(data) {
       headers: {
         'CONTENT-TYPE': 'application/json',
         'CONTENT-LENGTH': Buffer.byteLength(data),
-        'device': 'dscalarm'
+        'device': 'fireplace'
       }
     };
   
@@ -174,13 +174,13 @@ function relaycontrol(){
         logger("RELALAYCONTROL","Relay State value: " + relaystate);
         if (relaystate == 1) {
             relaystate = 0;
-            logger("RELALAYCONTROL","Changing Relay State to: " + relaystate);
+            logger("RELALAYCONTROL","Changing Relay State to OFF: " + relaystate);
             //relay.writeSync(relaystate);
             LED.writeSync(relaystate);
             // Call to SmartThings to update the App
         }else{
             relaystate = 1;
-            logger("RELALAYCONTROL","Changing Relay State to: " + relaystate);
+            logger("RELALAYCONTROL","Changing Relay State to ON: " + relaystate);
             //relay.writeSync(relaystate);
             LED.writeSync(relaystate);
             // Call to SmartThings to update the App
