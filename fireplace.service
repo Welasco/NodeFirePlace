@@ -1,0 +1,15 @@
+﻿[Unit]
+Description=Fireplace
+After=network.target
+
+[Service]
+ExecStart=/home/pi/NodeFirePlace/fireplace.js
+Restart=always
+User=pi
+Group=pi
+Environment=PATH=/usr/bin:/usr/local/bin
+Environment=NODE_ENV=production
+WorkingDirectory=/home/pi/NodeFirePlace
+
+[Install]
+WantedBy=multi-user.target

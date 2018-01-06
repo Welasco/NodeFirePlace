@@ -146,14 +146,14 @@ function relaycontrol(){
         if (relaystate == 1) {
             relaystate = 0;
             logger("RELALAYCONTROL","Changing Relay State to OFF: " + relaystate);
-            //relay.writeSync(relaystate);
+            relay.writeSync(relaystate);
             LED.writeSync(relaystate);
             sendSmartThingMsg("OFF");
             // Call to SmartThings to update the App
         }else{
             relaystate = 1;
             logger("RELALAYCONTROL","Changing Relay State to ON: " + relaystate);
-            //relay.writeSync(relaystate);
+            relay.writeSync(relaystate);
             LED.writeSync(relaystate);
             sendSmartThingMsg("ON");
             // Call to SmartThings to update the App
