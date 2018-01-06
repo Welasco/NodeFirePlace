@@ -30,8 +30,8 @@ var firstexecution = true;
 // Creating Endpoints
 // Those Endpoints will receive a HTTP GET Request
 // Execute the associated Method to make the following:
-//  "/" - Used to check if the alarm is running
-//  "/api/alarmArmAway" - Used to arm the alarm in away mode
+//  "/" - Used to check if the Fireplace is running
+//  "/api/fireplace" - Used to turn on and off the fireplace
 //////////////////////////////////////////////////////////////////
 
 // Used only to check if NodeJS is running
@@ -39,18 +39,9 @@ app.get("/", function (req, res) {
     res.send("<html><body><h1>FirePlace ON</h1></body></html>");
 });
 
-// Used to arm the alarm using the alarm password
-app.get("/api/fireplaceON", function (req, res) {
+app.get("/api/fireplace", function (req, res) {
     relaycontrol();
-    logger("HTTP","Request at /api/fireplaceON");
-    //res.send("200 OK");
-    res.end();
-});
-
-// Used to arm the alarm using the alarm password
-app.get("/api/fireplaceOFF", function (req, res) {
-    
-    logger("HTTP","Request at /api/fireplaceOFF");
+    logger("HTTP","Request at /api/fireplace");
     //res.send("200 OK");
     res.end();
 });
@@ -90,13 +81,11 @@ var LED = new Gpio(21, 'out'); //use GPIO pin 4 as output
 var pushButton = new Gpio(4, 'in', 'both'); //use GPIO pin 17 as input, and 'both' button presses, and releases should be handled
 var relay = new Gpio(23, 'out')
 
-
-
 ///////////////////////////////////////////
-// Function to send alarm msgs to SmartThing
+// Function to send fireplace msgs to SmartThing
 ///////////////////////////////////////////
 function sendSmartThingMsg(command) {
-    var msg = JSON.stringify({type: 'zone', command: command});
+    var msg = JSON.stringify({command: command});
     notify(msg);
     logger("SendMartthingsMsg","Sending SmartThing comand: " + msg);
 }
@@ -135,13 +124,6 @@ var notify = function(data) {
     req.end();
 }
 
-
-
-
-
-//var tempvalue = LED.readSync();
-//console.log("Temp value: "+tempvalue);
-
 pushButton.watch(function (err, value) { //Watch for hardware interrupts on pushButton GPIO, specify callback function
     logger("PUSHBUTTON","PUSHBUTTON Action ON/OFF");
     if (err) { //if an error
@@ -149,17 +131,6 @@ pushButton.watch(function (err, value) { //Watch for hardware interrupts on push
         logger("PUSHBUTTON","PUSHBUTTON Error" + err);
         return;
     }
-  /*
-  LED.writeSync(value); //turn LED on or off depending on the button state (0 or 1)
-  relay.writeSync(value);
-  console.log("Led value: " + value);
-  if(value == 1){
-    console.log("Led Ligado!");
-  }
-  else{
-    console.log("Led Desligado");
-  }
-  */
     relaycontrol()
 });
 
@@ -177,51 +148,21 @@ function relaycontrol(){
             logger("RELALAYCONTROL","Changing Relay State to OFF: " + relaystate);
             //relay.writeSync(relaystate);
             LED.writeSync(relaystate);
+            sendSmartThingMsg("OFF");
             // Call to SmartThings to update the App
         }else{
             relaystate = 1;
             logger("RELALAYCONTROL","Changing Relay State to ON: " + relaystate);
             //relay.writeSync(relaystate);
             LED.writeSync(relaystate);
+            sendSmartThingMsg("ON");
             // Call to SmartThings to update the App
         }        
     }
     else{
         logger("RELALAYCONTROL","IGNORED EVENT! Dif: " + dif);
     }
-
-    /*
-    // backup para o test do tempo
-    //relaystate = relay.readSync();
-    //relaystate = LED.readSync();
-    logger("RELALAYCONTROL","Relay State value: " + relaystate);
-    if (relaystate == 1) {
-        relaystate = 0;
-        logger("RELALAYCONTROL","Changing Relay State to: " + relaystate);
-        //relay.writeSync(relaystate);
-        LED.writeSync(relaystate);
-        // Call to SmartThings to update the App
-    }else{
-        relaystate = 1;
-        logger("RELALAYCONTROL","Changing Relay State to: " + relaystate);
-        //relay.writeSync(relaystate);
-        LED.writeSync(relaystate);
-        // Call to SmartThings to update the App
-    }
-    */
    
     miliolddate = new Date().getTime();
     firstexecution = false;
 };
-
-
-
-function unexportOnClose() { //function to run when exiting program
-  LED.writeSync(0); // Turn LED off
-  LED.unexport(); // Unexport LED GPIO to free resources
-  relay.writeSync(0);
-  relay.unexport();
-  pushButton.unexport(); // Unexport Button GPIO to free resources
-};
-
-process.on('SIGINT', unexportOnClose); //function to run when user closes using ctrl+c

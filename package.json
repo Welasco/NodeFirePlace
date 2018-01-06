@@ -1,9 +1,9 @@
 {
   "author": "victor@hepoca.com",
-  "name": "node-alarm",
+  "name": "node-fireplace",
   "version": "0.0.0",
-  "description": "NodeAlarm",
-  "main": "dscalarm.js",
+  "description": "Fireplace",
+  "main": "fireplace.js",
   "dependencies": {
     "express": "^4.15.2",
     "http": "0.0.0",
