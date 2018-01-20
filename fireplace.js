@@ -22,6 +22,8 @@ logger("Modules","Modules loaded");
 
 var httpport = nconf.get('httpport');
 var relaystate = 0;
+var oldswitchstate = 0;
+var newswitchstate = 0;
 var miliolddate = new Date().getTime();
 var milinewdate = new Date().getTime();
 var firstexecution = true;
@@ -124,16 +126,38 @@ var notify = function(data) {
     req.end();
 }
 
+function switchchanged(){
+    newswitchstate = pushButton.readSync();
+    logger("SWITCHCHANGED","Checking current switch state: " + newswitchstate);
+    if (oldswitchstate != newswitchstate) {
+        oldswitchstate = newswitchstate;
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+switchchanged();
+
 pushButton.watch(function (err, value) { //Watch for hardware interrupts on pushButton GPIO, specify callback function
-    logger("PUSHBUTTON","PUSHBUTTON Action ON/OFF");
+    logger("PUSHBUTTON","PUSHBUTTON event detected!");
     if (err) { //if an error
         console.error('There was an error', err); //output error message to console
         logger("PUSHBUTTON","PUSHBUTTON Error" + err);
         return;
     }
-    relaycontrol()
+    //relaycontrol()
+    logger("PUSHBUTTON","Checking if SWITCH was changed...");
+    var varswitchchanged  = switchchanged();
+    if (varswitchchanged) {
+        logger("PUSHBUTTON","Switch changed!");
+        relaycontrol()
+    }
+    else{
+        logger("PUSHBUTTON","Switch not changed!");
+    }
 });
-
 
 function relaycontrol(){
     
