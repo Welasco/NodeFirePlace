@@ -60,14 +60,28 @@ function check(callback) {
       }, 500);
 }
 
-check(function (checkvar) {
+var test = check(function (checkvar) {
     console.log('retornou');
     if (checkvar) {
         console.log('retornou verdadeiro');
+        return true;
+    }
+    else{
+        return false;
     }
 });
 
+if (test) {
+    console.log("Test verdadeiro");
+}
+
+console.log(test);
 //console.log("test: " + test);
+
+function createID() {
+    return Math.random().toString(26).slice(2)
+}
+console.log(createID())
 
 /*
     Retirar o delay de 100 milseconds ele esta evitando que se o switch esta realmente sendo alterado causando problema

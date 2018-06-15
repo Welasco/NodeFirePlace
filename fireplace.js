@@ -126,60 +126,64 @@ var notify = function(data) {
     req.end();
 }
 
+function createID() {
+    return Math.random().toString(26).slice(2)
+}
+
 function switchchanged(callbackswitchsate){
     var icount = 0;
     var checkcount = 2;
     var waitcheck = 500;
-
+    var swuID = createID();
     newswitchstate = pushButton.readSync();
-    logger("SWITCHCHANGED","Checking current switch state: " + newswitchstate);
+    logger(swuID+"-"+"SWITCHCHANGED","Checking current switch state: " + newswitchstate);
     if (oldswitchstate != newswitchstate) {
-        logger("SWITCHCHANGED","Looks like switch was changed to: " + newswitchstate);
+        logger(swuID+"-"+"SWITCHCHANGED","Looks like switch was changed to: " + newswitchstate);
         var interval = setInterval(function(){ 
             newswitchstate = pushButton.readSync();
             if (icount >= checkcount) {
                 if (oldswitchstate != newswitchstate) {
-                    logger("SWITCHCHANGED","Checking if the switch was changed for " + checkcount + " times, in " + waitcheck + "ms, the final state is " + newswitchstate + ". The SWITCH was really changed and keep in that state.");
+                    logger(swuID+"-"+"SWITCHCHANGED","Checking if the switch was changed for " + checkcount + " times, in " + waitcheck + "ms, the final state is " + newswitchstate + ". The SWITCH was really changed and keep in that state.");
                     oldswitchstate = newswitchstate;
                     callbackswitchsate(true);
-                    clearInterval(interval);
                 }
                 else{
-                    logger("SWITCHCHANGED","Checking if the switch was changed for " + checkcount + " times, in " + waitcheck + "ms, the final state is " + newswitchstate + ". It was a falso positive and the switch goes back to the original state.");
+                    logger(swuID+"-"+"SWITCHCHANGED","Checking if the switch was changed for " + checkcount + " times, in " + waitcheck + "ms, the final state is " + newswitchstate + ". It was a falso positive and the switch goes back to the original state.");
                     callbackswitchsate(false);
                 }
+                clearInterval(interval);
             }
-            i++;
+            icount++;
           }, waitcheck);        
     }
     else{
-        logger("SWITCHCHANGED","Switch was not changed false positive!");
+        logger(swuID+"-"+"SWITCHCHANGED","Switch was not changed false positive!");
         callbackswitchsate(false);
     }
 }
 
-switchchanged();
+//switchchanged();
 
 pushButton.watch(function (err, value) { //Watch for hardware interrupts on pushButton GPIO, specify callback function
-    logger("PUSHBUTTON","PUSHBUTTON event detected!");
+    var puuID = createID();
+    logger(puuID+"-"+"PUSHBUTTON","PUSHBUTTON event detected!");
     if (err) { //if an error
         console.error('There was an error', err); //output error message to console
-        logger("PUSHBUTTON","PUSHBUTTON Error" + err);
+        logger(puuID+"-"+"PUSHBUTTON","PUSHBUTTON Error" + err);
         return;
     }
     //relaycontrol()
-    logger("PUSHBUTTON","Checking if SWITCH was changed...");
-    var varswitchchanged = switchchanged(function (switchchanged) {
-        return switchchanged;
+    logger(puuID+"-"+"PUSHBUTTON","Checking if SWITCH was changed...");
+    switchchanged(function (switchchanged) {
+        if (switchchanged) {
+            logger(puuID+"-"+"PUSHBUTTON","Switch changed!");
+            //relaycontrol()
+        }
+        else{
+            logger(puuID+"-"+"PUSHBUTTON","Switch not changed!");
+        }        
+        //return switchchanged;
     });    
-    //var varswitchchanged  = switchchanged();
-    if (varswitchchanged) {
-        logger("PUSHBUTTON","Switch changed!");
-        relaycontrol()
-    }
-    else{
-        logger("PUSHBUTTON","Switch not changed!");
-    }
 });
 
 function relaycontrol(){
@@ -200,5 +204,5 @@ function relaycontrol(){
         //LED.writeSync(relaystate);
         sendSmartThingMsg("ON");
         // Call to SmartThings to update the App
-    }        
+    }
 };
