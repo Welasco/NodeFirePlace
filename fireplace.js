@@ -172,11 +172,11 @@ pushButton.watch(function (err, value) { //Watch for hardware interrupts on push
         logger(puuID+"-"+"PUSHBUTTON","PUSHBUTTON Error" + err);
         return;
     }
-    //relaycontrol()
     logger(puuID+"-"+"PUSHBUTTON","Checking if SWITCH was changed...");
     switchchanged(function (switchchanged) {
         if (switchchanged) {
             logger(puuID+"-"+"PUSHBUTTON","Switch changed!");
+            // The pushbutton is currently disabled for test
             //relaycontrol()
         }
         else{
