@@ -52,6 +52,7 @@ function check(callback) {
     var interval = setInterval(function(){ 
         console.log('Hello World ' +  new Date().toISOString()); 
         if (i >= 2) {
+            console.log('Dentro do IF ' +  new Date().toISOString()); 
             callback(true);
             clearInterval(interval);     
         }

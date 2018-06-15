@@ -126,35 +126,15 @@ var notify = function(data) {
     req.end();
 }
 
-function switchchanged(callbackswitchsate){
-    var icount = 0;
-    var checkcount = 2;
-    var waitcheck = 500;
-
+function switchchanged(){
     newswitchstate = pushButton.readSync();
     logger("SWITCHCHANGED","Checking current switch state: " + newswitchstate);
     if (oldswitchstate != newswitchstate) {
-        logger("SWITCHCHANGED","Looks like switch was changed to: " + newswitchstate);
-        var interval = setInterval(function(){ 
-            newswitchstate = pushButton.readSync();
-            if (icount >= checkcount) {
-                if (oldswitchstate != newswitchstate) {
-                    logger("SWITCHCHANGED","Checking if the switch was changed for " + checkcount + " times, in " + waitcheck + "ms, the final state is " + newswitchstate + ". The SWITCH was really changed and keep in that state.");
-                    oldswitchstate = newswitchstate;
-                    callbackswitchsate(true);
-                    clearInterval(interval);
-                }
-                else{
-                    logger("SWITCHCHANGED","Checking if the switch was changed for " + checkcount + " times, in " + waitcheck + "ms, the final state is " + newswitchstate + ". It was a falso positive and the switch goes back to the original state.");
-                    callbackswitchsate(false);
-                }
-            }
-            i++;
-          }, waitcheck);        
+        oldswitchstate = newswitchstate;
+        return true;
     }
     else{
-        logger("SWITCHCHANGED","Switch was not changed false positive!");
-        callbackswitchsate(false);
+        return false;
     }
 }
 
@@ -169,10 +149,7 @@ pushButton.watch(function (err, value) { //Watch for hardware interrupts on push
     }
     //relaycontrol()
     logger("PUSHBUTTON","Checking if SWITCH was changed...");
-    var varswitchchanged = switchchanged(function (switchchanged) {
-        return switchchanged;
-    });    
-    //var varswitchchanged  = switchchanged();
+    var varswitchchanged  = switchchanged();
     if (varswitchchanged) {
         logger("PUSHBUTTON","Switch changed!");
         relaycontrol()
@@ -183,22 +160,33 @@ pushButton.watch(function (err, value) { //Watch for hardware interrupts on push
 });
 
 function relaycontrol(){
-    //relaystate = relay.readSync();
-    //relaystate = LED.readSync();
-    logger("RELALAYCONTROL","Relay State value: " + relaystate);
-    if (relaystate == 1) {
-        relaystate = 0;
-        logger("RELALAYCONTROL","Changing Relay State to OFF: " + relaystate);
-        relay.writeSync(relaystate);
-        //LED.writeSync(relaystate);
-        sendSmartThingMsg("OFF");
-        // Call to SmartThings to update the App
-    }else{
-        relaystate = 1;
-        logger("RELALAYCONTROL","Changing Relay State to ON: " + relaystate);
-        relay.writeSync(relaystate);
-        //LED.writeSync(relaystate);
-        sendSmartThingMsg("ON");
-        // Call to SmartThings to update the App
-    }        
+    
+    milinewdate = new Date().getTime();
+    var dif = milinewdate - miliolddate
+    if(dif > 100 || firstexecution){
+        //relaystate = relay.readSync();
+        //relaystate = LED.readSync();
+        logger("RELALAYCONTROL","Relay State value: " + relaystate);
+        if (relaystate == 1) {
+            relaystate = 0;
+            logger("RELALAYCONTROL","Changing Relay State to OFF: " + relaystate);
+            relay.writeSync(relaystate);
+            //LED.writeSync(relaystate);
+            sendSmartThingMsg("OFF");
+            // Call to SmartThings to update the App
+        }else{
+            relaystate = 1;
+            logger("RELALAYCONTROL","Changing Relay State to ON: " + relaystate);
+            relay.writeSync(relaystate);
+            //LED.writeSync(relaystate);
+            sendSmartThingMsg("ON");
+            // Call to SmartThings to update the App
+        }        
+    }
+    else{
+        logger("RELALAYCONTROL","IGNORED EVENT! Dif: " + dif);
+    }
+   
+    miliolddate = new Date().getTime();
+    firstexecution = false;
 };
